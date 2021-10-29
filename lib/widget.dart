@@ -26,7 +26,7 @@ class FetchController<T> with ChangeNotifier{
     _isLoading = loadingDelegate;
   }
   set _setIsError(_GetterDelegate<bool> isErrorDelegate){
-    _isLoading = isErrorDelegate;
+    _isError = isErrorDelegate;
   }
 
   void _init(
