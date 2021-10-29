@@ -56,6 +56,14 @@ class FetchController<T> with ChangeNotifier{
     _init(refreshDelegate: refreshDelegate, pageDelegate: pageDelegate, loadingDelegate: loadingDelegate, isErrorDelegate: isErrorDelegate);
   }
 
+  @override
+  void dispose() {
+    if(SchedulerBinding.instance == null)
+      super.dispose();
+    else 
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {super.dispose();});
+  }
+
   void refresh(){ _refresh(); }
   bool get isLoading => _isLoading();
   bool get isError => _isError();
