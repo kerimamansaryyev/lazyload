@@ -117,7 +117,7 @@ class LazyLoadView<T> extends StatefulWidget {
   LazyLoadViewState<T> createState() => LazyLoadViewState<T>();
 }
 
-class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControlledMixin<LazyLoadView<_T>, _T>{
+class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControlledMixin<LazyLoadView<_T>, List< _T>>{
 
   late int _pagefactor;
   List<_T> _data = [];
