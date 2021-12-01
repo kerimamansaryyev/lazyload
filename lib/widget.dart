@@ -91,7 +91,8 @@ class LazyLoadView<T> extends StatefulWidget {
     this.emptyWidget = const SliverToBoxAdapter(),
     this.needBottomSpace = true,
     this.needPagination = true,
-    this.overridePullToRefresh
+    this.overridePullToRefresh,
+    this.scrollController
   }) 
     : super(key: key);
 
@@ -112,6 +113,7 @@ class LazyLoadView<T> extends StatefulWidget {
   final bool needBottomSpace;
   final bool needPagination;
   final void Function()? overridePullToRefresh;
+  final ScrollController? scrollController;
 
   @override
   LazyLoadViewState<T> createState() => LazyLoadViewState<T>();
@@ -252,7 +254,7 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
         );
       }
     });
-    controller = ScrollController()..addListener(_scrollListener);
+    controller = (widget.scrollController ?? ScrollController())..addListener(_scrollListener);
     connect(context);
   }
   
