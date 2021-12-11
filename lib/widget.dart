@@ -232,7 +232,8 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
     super.dispose();
     cancel();
     isLoading = false;
-    controller.dispose();
+    if(widget.scrollController == null)
+      controller.dispose();
     channel?.cancel();
   }
 
