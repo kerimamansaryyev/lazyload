@@ -1,42 +1,46 @@
 part of lazyload;
-typedef PaginatedData<T> = Future<List<T>> Function(int page, BuildContext context);
+
+typedef PaginatedData<T> = Future<List<T>> Function(
+    int page, BuildContext context);
 typedef _GetterDelegate<T> = T Function();
 
-class FetchController<T> with ChangeNotifier{
-
-  _GetterDelegate<void> _refresh = (){};
+class FetchController<T> with ChangeNotifier {
+  _GetterDelegate<void> _refresh = () {};
   _GetterDelegate<int> _currentPage = () => 0;
   _GetterDelegate<bool> _isLoading = () => true;
   _GetterDelegate<bool> _isError = () => false;
 
-  void _update(){
-    if(SchedulerBinding.instance != null)
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {notifyListeners();});
+  void _update() {
+    if (SchedulerBinding.instance != null)
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+        notifyListeners();
+      });
     else
       notifyListeners();
   }
 
-  set _setRefresh(_GetterDelegate<void> refreshDelegate){
+  set _setRefresh(_GetterDelegate<void> refreshDelegate) {
     _refresh = refreshDelegate;
   }
-  set _setCurrentPage(_GetterDelegate<int> currentPageDelegate){
+
+  set _setCurrentPage(_GetterDelegate<int> currentPageDelegate) {
     _currentPage = currentPageDelegate;
   }
-  set _setIsLoading(_GetterDelegate<bool> loadingDelegate){
+
+  set _setIsLoading(_GetterDelegate<bool> loadingDelegate) {
     _isLoading = loadingDelegate;
   }
-  set _setIsError(_GetterDelegate<bool> isErrorDelegate){
+
+  set _setIsError(_GetterDelegate<bool> isErrorDelegate) {
     _isError = isErrorDelegate;
   }
 
-  void _init(
-    {
-      required _GetterDelegate<void> refreshDelegate,
-      required _GetterDelegate<int> pageDelegate,
-      required _GetterDelegate<bool> loadingDelegate,
-      required _GetterDelegate<bool> isErrorDelegate,
-    }
-  ){
+  void _init({
+    required _GetterDelegate<void> refreshDelegate,
+    required _GetterDelegate<int> pageDelegate,
+    required _GetterDelegate<bool> loadingDelegate,
+    required _GetterDelegate<bool> isErrorDelegate,
+  }) {
     _setRefresh = refreshDelegate;
     _setCurrentPage = pageDelegate;
     _setIsLoading = loadingDelegate;
@@ -45,56 +49,61 @@ class FetchController<T> with ChangeNotifier{
   }
 
   @visibleForTesting
-  void init(
-    {
-      required _GetterDelegate<void> refreshDelegate,
-      required _GetterDelegate<int> pageDelegate,
-      required _GetterDelegate<bool> loadingDelegate,
-      required _GetterDelegate<bool> isErrorDelegate,
-    }
-  ){
-    _init(refreshDelegate: refreshDelegate, pageDelegate: pageDelegate, loadingDelegate: loadingDelegate, isErrorDelegate: isErrorDelegate);
+  void init({
+    required _GetterDelegate<void> refreshDelegate,
+    required _GetterDelegate<int> pageDelegate,
+    required _GetterDelegate<bool> loadingDelegate,
+    required _GetterDelegate<bool> isErrorDelegate,
+  }) {
+    _init(
+        refreshDelegate: refreshDelegate,
+        pageDelegate: pageDelegate,
+        loadingDelegate: loadingDelegate,
+        isErrorDelegate: isErrorDelegate);
   }
 
   @override
   void dispose() {
-    if(SchedulerBinding.instance == null)
+    if (SchedulerBinding.instance == null)
       super.dispose();
-    else 
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {super.dispose();});
+    else
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+        super.dispose();
+      });
   }
 
-  void refresh(){ _refresh(); }
+  void refresh() {
+    _refresh();
+  }
+
   bool get isLoading => _isLoading();
   bool get isError => _isError();
   int get currentPage => _currentPage();
-
 }
 
-
 class LazyLoadView<T> extends StatefulWidget {
-  LazyLoadView({
-    Key? key,
-    required this.data,
-    this.fetchController,
-    this.before = const [],
-    this.after = const [],
-    this.contentPadding = const EdgeInsets.all(0),
-    required this.loaderWidget,
-    required this.loadMoreWidget,
-    required this.errorWidget,
-    required this.errorOnLoadMoreWidget,
-    this.scrollPhysics,
-    required this.itemBuilder,
-    this.pageFactor = 10,
-    this.gridDelegate,
-    this.emptyWidget = const SliverToBoxAdapter(),
-    this.needBottomSpace = true,
-    this.needPagination = true,
-    this.overridePullToRefresh,
-    this.scrollController
-  }) 
-    : super(key: key);
+  LazyLoadView(
+      {Key? key,
+      required this.data,
+      this.fetchController,
+      this.before = const [],
+      this.after = const [],
+      this.contentPadding = const EdgeInsets.all(0),
+      required this.loaderWidget,
+      required this.loadMoreWidget,
+      required this.errorWidget,
+      required this.errorOnLoadMoreWidget,
+      this.scrollPhysics,
+      required this.itemBuilder,
+      this.pageFactor = 10,
+      this.gridDelegate,
+      this.emptyWidget = const SliverToBoxAdapter(),
+      this.needBottomSpace = true,
+      this.needPagination = true,
+      this.overridePullToRefresh,
+      this.disableScrollOnLoad = true,
+      this.scrollController})
+      : super(key: key);
 
   final FetchController<T>? fetchController;
   final PaginatedData<T> data;
@@ -105,7 +114,8 @@ class LazyLoadView<T> extends StatefulWidget {
   final Widget loadMoreWidget;
   final SliverGridDelegate? gridDelegate;
   final Widget Function(void Function() closure, dynamic e) errorWidget;
-  final Widget Function(void Function() closure, dynamic e) errorOnLoadMoreWidget;
+  final Widget Function(void Function() closure, dynamic e)
+      errorOnLoadMoreWidget;
   final ScrollPhysics? scrollPhysics;
   final Widget Function(BuildContext context, T model, int index) itemBuilder;
   final int pageFactor;
@@ -114,13 +124,14 @@ class LazyLoadView<T> extends StatefulWidget {
   final bool needPagination;
   final void Function()? overridePullToRefresh;
   final ScrollController? scrollController;
+  final bool disableScrollOnLoad;
 
   @override
   LazyLoadViewState<T> createState() => LazyLoadViewState<T>();
 }
 
-class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControlledMixin<LazyLoadView<_T>, List< _T>>{
-
+class LazyLoadViewState<_T> extends State<LazyLoadView<_T>>
+    with _StreamControlledMixin<LazyLoadView<_T>, List<_T>> {
   late int _pagefactor;
   List<_T> _data = [];
   bool _isError = false;
@@ -131,45 +142,45 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
   dynamic errorTrace;
   bool performingFrame = false;
 
-  List<_T> get data =>  [..._data];
+  List<_T> get data => [..._data];
 
-  int get _page{
-    return (_data.length/_pagefactor).ceil();
+  int get _page {
+    return (_data.length / _pagefactor).ceil();
   }
 
   @override
-  Future Function() get asyncAction => () => widget.data(_page+1, context);
+  Future Function() get asyncAction => () => widget.data(_page + 1, context);
 
   @override
-    start(_){
-      setState(() {
-        _isError = false;
-        widget.fetchController?._update();
-      });
-    }
-
-  @override
-    done(_){
+  start(_) {
+    setState(() {
+      _isError = false;
       widget.fetchController?._update();
-    }
+    });
+  }
 
   @override
-    onDataRecived(cntxt, dataRecieved){
-      var finalData = dataRecieved as List<_T>;
-      setState(() {
-        _data.addAll(finalData);
-        widget.fetchController?._update();
-      });
-    }
+  done(_) {
+    widget.fetchController?._update();
+  }
 
   @override
-    error(_,err){
-      setState(() {
-        _isError = true;
-        errorTrace = err;
-        widget.fetchController?._update();
-      });
-    }
+  onDataRecived(cntxt, dataRecieved) {
+    var finalData = dataRecieved as List<_T>;
+    setState(() {
+      _data.addAll(finalData);
+      widget.fetchController?._update();
+    });
+  }
+
+  @override
+  error(_, err) {
+    setState(() {
+      _isError = true;
+      errorTrace = err;
+      widget.fetchController?._update();
+    });
+  }
 
   @override
   void cancel() {
@@ -178,33 +189,36 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
   }
 
   @override
-    get channel => _channel;
+  get channel => _channel;
 
   @override
-    set channel(v){
-      _channel = v
-      ?..onDone(()async{
-          if(_data.isNotEmpty && widget.needPagination && !performingFrame)
-            await Future.delayed(Duration(milliseconds: 570));
-          if(mounted){
-            setState(() {
-              if(performingFrame)
-                 performingFrame = false;
-               isLoading = false;
-               widget.fetchController?._update();
-            });
-          }
-        });
-    }
+  set channel(v) {
+    _channel = v
+      ?..onDone(() async {
+        if (_data.isNotEmpty && widget.needPagination && !performingFrame)
+          await Future.delayed(Duration(milliseconds: 570));
+        if (mounted) {
+          setState(() {
+            if (performingFrame) performingFrame = false;
+            isLoading = false;
+            widget.fetchController?._update();
+          });
+        }
+      });
+  }
 
-   void _scrollListener() {
-    if ( (controller.offset >= controller.position.maxScrollExtent && widget.needPagination)) {
-        _loadMore();
+  void _scrollListener() {
+    if ((controller.offset >= controller.position.maxScrollExtent &&
+        widget.needPagination)) {
+      _loadMore();
     }
   }
 
-  void _loadMore()async{
-    if( _data.length == _pagefactor*_page && !isLoading && !_isLoadingMore && !_isError ){
+  void _loadMore() async {
+    if (_data.length == _pagefactor * _page &&
+        !isLoading &&
+        !_isLoadingMore &&
+        !_isError) {
       setState(() {
         widget.fetchController?._update();
         connect(context);
@@ -212,7 +226,7 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
     }
   }
 
-  void refresh(){
+  void refresh() {
     setState(() {
       _data.clear();
       isLoading = true;
@@ -222,7 +236,7 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
     connect(context);
   }
 
-  void tryAgain(){
+  void tryAgain() {
     widget.fetchController?._update();
     connect(context);
   }
@@ -232,8 +246,7 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
     super.dispose();
     cancel();
     isLoading = false;
-    if(widget.scrollController == null)
-      controller.dispose();
+    if (widget.scrollController == null) controller.dispose();
     channel?.cancel();
   }
 
@@ -245,88 +258,79 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>> with _StreamControll
   void initState() {
     super.initState();
     _pagefactor = widget.pageFactor;
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) { 
-      if(widget.fetchController != null){
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+      if (widget.fetchController != null) {
         widget.fetchController?._init(
-          refreshDelegate: refresh, 
-          pageDelegate: _getPage, 
-          loadingDelegate: _getIsLoading, 
-          isErrorDelegate: _getIsError
-        );
+            refreshDelegate: refresh,
+            pageDelegate: _getPage,
+            loadingDelegate: _getIsLoading,
+            isErrorDelegate: _getIsError);
       }
     });
-    controller = (widget.scrollController ?? ScrollController())..addListener(_scrollListener);
+    controller = (widget.scrollController ?? ScrollController())
+      ..addListener(_scrollListener);
     connect(context);
   }
-  
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-       child: RefreshIndicator(
-         onRefresh: ()async{ 
-           if(widget.overridePullToRefresh == null)
+      child: RefreshIndicator(
+        onRefresh: () async {
+          if (widget.overridePullToRefresh == null)
             refresh();
-           else 
+          else
             widget.overridePullToRefresh!();
-         },
-         child: CustomScrollView(
-           physics: isLoading && !_isLoadingMore? NeverScrollableScrollPhysics(): widget.scrollPhysics,
-           controller: controller,
-           slivers: [
-
-             if(isLoading && _data.isEmpty)
+        },
+        child: CustomScrollView(
+          physics: isLoading && !_isLoadingMore && widget.disableScrollOnLoad
+              ? NeverScrollableScrollPhysics()
+              : widget.scrollPhysics,
+          controller: controller,
+          slivers: [
+            if (isLoading && _data.isEmpty)
               widget.loaderWidget
-             else if(_isError && _data.isEmpty)
+            else if (_isError && _data.isEmpty)
               widget.errorWidget(refresh, errorTrace)
-             else if(_data.isEmpty)
+            else if (_data.isEmpty)
               widget.emptyWidget
-             else if(widget.gridDelegate != null)
-             SliverPadding(
-               padding: widget.contentPadding,
-               sliver: SliverGrid(
-                 delegate: SliverChildBuilderDelegate(
-                   (_, index) => widget.itemBuilder(context, _data[index], index),
-                   childCount: _data.length
-                 ), 
-                 gridDelegate: widget.gridDelegate!
-               ),
-             ) 
-             else
+            else if (widget.gridDelegate != null)
+              SliverPadding(
+                padding: widget.contentPadding,
+                sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                        (_, index) =>
+                            widget.itemBuilder(context, _data[index], index),
+                        childCount: _data.length),
+                    gridDelegate: widget.gridDelegate!),
+              )
+            else
               SliverPadding(
                 padding: widget.contentPadding,
                 sliver: SliverList(
-                  delegate: SliverChildListDelegate(
-                    List.generate(
-                      _data.length, 
-                      (index) => widget.itemBuilder(context,_data[index], index)
-                    )
-                  ),
+                  delegate: SliverChildListDelegate(List.generate(
+                      _data.length,
+                      (index) =>
+                          widget.itemBuilder(context, _data[index], index))),
                 ),
               ),
-             if(_isLoadingMore)
+            if (_isLoadingMore)
               widget.loadMoreWidget
-             else if(_isErrorOnLoadMore)
+            else if (_isErrorOnLoadMore)
               widget.errorOnLoadMoreWidget(tryAgain, errorTrace)
-           ]..insertAll(
-             0, 
-             widget.before
-           )..addAll(
-             [
-               if(!isLoading && !_isLoadingMore)
-               ...widget.after
-             ]
-           )..addAll([
-             if(widget.needBottomSpace)
-             SliverToBoxAdapter(
-               child: SizedBox(
-                 height: (MediaQuery.of(context).size.height*0.1)/2,
-               ),
-             )
-           ]),
-         ),
-       ),
+          ]
+            ..insertAll(0, widget.before)
+            ..addAll([if (!isLoading && !_isLoadingMore) ...widget.after])
+            ..addAll([
+              if (widget.needBottomSpace)
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: (MediaQuery.of(context).size.height * 0.1) / 2,
+                  ),
+                )
+            ]),
+        ),
+      ),
     );
   }
 }
