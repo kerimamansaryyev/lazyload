@@ -308,10 +308,10 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>>
               SliverPadding(
                 padding: widget.contentPadding,
                 sliver: SliverList(
-                  delegate: SliverChildListDelegate(List.generate(
-                      _data.length,
-                      (index) =>
-                          widget.itemBuilder(context, _data[index], index))),
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          widget.itemBuilder(context, _data[index], index),
+                      childCount: _data.length),
                 ),
               ),
             if (_isLoadingMore)
