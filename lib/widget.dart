@@ -11,12 +11,9 @@ class FetchController<T> with ChangeNotifier {
   _GetterDelegate<bool> _isError = () => false;
 
   void _update() {
-    if (SchedulerBinding.instance != null)
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        notifyListeners();
-      });
-    else
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       notifyListeners();
+    });
   }
 
   set _setRefresh(_GetterDelegate<void> refreshDelegate) {
@@ -64,12 +61,9 @@ class FetchController<T> with ChangeNotifier {
 
   @override
   void dispose() {
-    if (SchedulerBinding.instance == null)
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       super.dispose();
-    else
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        super.dispose();
-      });
+    });
   }
 
   void refresh() {
@@ -258,7 +252,7 @@ class LazyLoadViewState<_T> extends State<LazyLoadView<_T>>
   void initState() {
     super.initState();
     _pagefactor = widget.pageFactor;
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       if (widget.fetchController != null) {
         widget.fetchController?._init(
             refreshDelegate: refresh,
